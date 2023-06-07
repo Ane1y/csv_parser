@@ -21,7 +21,7 @@ FetchContent_MakeAvailable(googletest)
 
 include_directories(src)
 
-add_executable(main src/csv_parser.cpp src/main.cpp)
+add_executable(csvreader src/csv_parser.cpp csvreader.cpp)
 add_executable(csv_test src/csv_parser.cpp tests/test_csv_parser.cpp)
 
 target_include_directories(csv_test PUBLIC ./yadro)

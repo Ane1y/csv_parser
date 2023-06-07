@@ -80,7 +80,6 @@ void CSVParser::parse_row(const std::string& line, size_t row_idx) {
         if (row_map.find(row_num) != row_map.end()) {
             throw std::runtime_error("csv file contains dublicated row numbers: " +  cell);
         }
-
         row_map.insert({row_num, row_idx});
         row_order.push_back(row_num);
     }
