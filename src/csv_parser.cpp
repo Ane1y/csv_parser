@@ -1,10 +1,10 @@
 #include "csv_parser.hpp"
 
-CSVParser::CSVParser(const std::string& filename) {
+CSVParser::CSVParser(const std::string& filename, bool suppress_errors) : suppress_errors(suppress_errors) {
     std::ifstream file(filename);
 
     if (!file) {
-        throw std::runtime_error("Error opening file: " + filename);
+        throw std::runtime_error("Status opening file: " + filename);
     }
 
     std::string line;
@@ -21,9 +21,9 @@ CSVParser::CSVParser(const std::string& filename) {
 
     file.close();
 
-    evaluated_table.resize(row_cnt);
+    result.resize(row_cnt);
     for (size_t i = 0; i < row_cnt; ++i) {
-        evaluated_table[i].resize(n_col, std::numeric_limits<int>::max());
+        result[i].resize(n_col, std::numeric_limits<int>::max());
     }
     evaluate();
 }
@@ -41,7 +41,7 @@ void CSVParser::print_csv(std::ostream& out) const {
                     out << *it;
                     it++;
                 }
-                out << "," << evaluated_table[i][j];
+                out << "," << (result[i][j] == std::numeric_limits<int>::max() ? "[ERR]" : std::to_string(result[i][j]));
             }
             out << std::endl;
         }
@@ -91,6 +91,8 @@ void CSVParser::parse_row(const std::string& line, size_t row_idx) {
                  [[maybe_unused]] auto value = std::stoi(cell);
             } catch (const std::invalid_argument& e) {
                 throw std::runtime_error("one of the cell contains neither number nor address");
+            } catch (const std::out_of_range& e) {
+                throw std::runtime_error("overflow, one of the number bigger than it is possible to store");
             }
         }
         row.push_back(cell);
@@ -102,12 +104,19 @@ void CSVParser::parse_row(const std::string& line, size_t row_idx) {
     table.push_back(row);
 }
 
-// TODO problems with cyclic dependencies
 void CSVParser::evaluate() {
     for (size_t row_idx = 0; row_idx < table.size(); row_idx++) {
         for (size_t col_idx = 0; col_idx < table[row_idx].size(); col_idx++) {
             const std::string& value = table[row_idx][col_idx];
-            evaluated_table[row_idx][col_idx] = evaluate_expression(value);
+            if (suppress_errors) {
+                try {
+                    result[row_idx][col_idx] = evaluate_expression(value);
+                } catch (const std::exception &e) {
+                    result[row_idx][col_idx] = std::numeric_limits<int>::max();
+                }
+            } else {
+                result[row_idx][col_idx] = evaluate_expression(value);
+            }
             visited.clear();
         }
     }
@@ -132,10 +141,11 @@ int CSVParser::evaluate_operation(int left_operand, int right_operand, char op) 
 }
 
 int CSVParser::evaluate_cell_value(size_t row_idx, size_t col_idx, const std::string& cell_name) {
-    if (evaluated_table[row_idx][col_idx] != std::numeric_limits<int>::max()) {
-        return evaluated_table[row_idx][col_idx];
+    if (result[row_idx][col_idx] != std::numeric_limits<int>::max()) {
+        return result[row_idx][col_idx];
     }
     if (visited.find(cell_name) != visited.end()) {
+        detected_cycles.insert(visited.begin(), visited.end());
         throw std::runtime_error("Cyclic dependency detected for cell: " + cell_name);
     }
 
