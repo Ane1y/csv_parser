@@ -5,6 +5,7 @@
 #include <sstream>
 #include <vector>
 #include <map>
+#include <stack>
 #include <regex>
 #include <limits>
 #include <stdexcept>

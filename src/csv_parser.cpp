@@ -57,7 +57,7 @@ void CSVParser::parse_header(const std::string& line) {
     while (std::getline(ss, cell, ',')) {
         cell = utils::trim(cell);
         if (header_map.find(cell) != header_map.end()) {
-            throw std::runtime_error("csv file contains dublicated column names: " +  cell);
+            throw std::runtime_error("csv file contains duplicated column names: " +  cell);
         }
 
         header_map.insert({cell, col});
@@ -78,16 +78,17 @@ void CSVParser::parse_row(const std::string& line, size_t row_idx) {
         int row_num = std::stoi(cell);
 
         if (row_map.find(row_num) != row_map.end()) {
-            throw std::runtime_error("csv file contains dublicated row numbers: " +  cell);
+            throw std::runtime_error("csv file contains duplicated row numbers: " +  cell);
         }
         row_map.insert({row_num, row_idx});
         row_order.push_back(row_num);
     }
 
     while (std::getline(ss, cell, ',')) {
+        cell = utils::trim(cell);
         if (cell[0] != '=') {
             try {
-                std::stoi(cell);
+                 [[maybe_unused]] auto value = std::stoi(cell);
             } catch (const std::invalid_argument& e) {
                 throw std::runtime_error("one of the cell contains neither number nor address");
             }
@@ -107,6 +108,7 @@ void CSVParser::evaluate() {
         for (size_t col_idx = 0; col_idx < table[row_idx].size(); col_idx++) {
             const std::string& value = table[row_idx][col_idx];
             evaluated_table[row_idx][col_idx] = evaluate_expression(value);
+            visited.clear();
         }
     }
 }
@@ -120,6 +122,9 @@ int CSVParser::evaluate_operation(int left_operand, int right_operand, char op) 
         case '*':
             return left_operand * right_operand;
         case '/':
+            if (right_operand == 0) {
+                throw std::runtime_error("Try to divide by zero");
+            }
             return left_operand / right_operand;
         default:
             throw std::runtime_error("Invalid operator: " + std::string(1, op));
@@ -153,7 +158,7 @@ int CSVParser::evaluate_expression(std::string expression) {
         auto [col_idx, row_idx] = get_table_inds(cell_match[1], std::stoi(cell_match[2]));
         std::string cell_name = cell_match[0].str();
         int cell_value = evaluate_cell_value(row_idx, col_idx, cell_name);
-        expression = std::regex_replace(expression, std::regex(cell_name), std::to_string(cell_value) + ' ');
+        expression = std::regex_replace(expression, std::regex(cell_name), ' ' + std::to_string(cell_value) + ' ');
     }
 
     std::stack<int> values;
