@@ -4,7 +4,7 @@ project(csv_parser)
 set(CMAKE_CXX_STANDARD 20)
 
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX") # CMake already contains W3 in its flags
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /WX")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wextra -Wextra-semi -O0 -g -fsanitize=address -fno-omit-frame-pointer")
 endif()
@@ -24,7 +24,7 @@ include_directories(src)
 add_executable(csvreader src/csv_parser.cpp csvreader.cpp)
 add_executable(csv_test src/csv_parser.cpp tests/test_csv_parser.cpp)
 
-target_include_directories(csv_test PUBLIC ./yadro)
+target_include_directories(csv_test PUBLIC ./)
 
 enable_testing()
 
