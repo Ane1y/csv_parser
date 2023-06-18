@@ -13,6 +13,18 @@ TEST(CSVParserTest, SimpleTest) {
     ASSERT_EQ(out.str(), expected.str());
 }
 
+TEST(CSVParserTest, ComplexTest) {
+    CSVParser parser("../data/complex.csv");
+    std::stringstream out;
+
+    std::ifstream file("../data/complex_expected.csv");
+    std::stringstream expected;
+    expected << file.rdbuf();
+
+    parser.print_csv(out);
+    ASSERT_EQ(out.str(), expected.str());
+}
+
 TEST(CSVParserTest, CyclicDependency) {
     std::string expected_msg = "Cyclic dependency detected for cell: A8";
     try {
@@ -84,7 +96,7 @@ TEST(CSVParserTest, RandomSpaces) {
 }
 
 TEST(CSVParserTest, SameNames) {
-    std::string expected_msg = "csv file contains dublicated column names: A";
+    std::string expected_msg = "csv file contains duplicated column names: A";
     try {
         CSVParser parser("../data/same_names.csv");
         FAIL() << "Expected: " << expected_msg;

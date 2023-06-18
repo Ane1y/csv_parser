@@ -21,17 +21,21 @@
    ```
    ./build.sh
    ```
+И запустите утилиту: 
+   ```
+   $ ./csvreader file.csv
+   ```
 
 Для Windows:
    ```
    .\build.bat
 
    ```
+И запустите утилиту:
+   ```
+   $ .\csvreader.exe file.csv
+   ```
 
-Запустите CSVReader с указанным путем до CSV файла:
-   ```
-   $ ./build/csvreader file.csv
-   ```
 Замените `file.csv` на путь к вашему CSV файлу.
 
 В консоль будет выведен результат работы программы
