@@ -14,7 +14,7 @@ TEST(CSVParserTest, SimpleTest) {
 }
 
 TEST(CSVParserTest, ComplexTest) {
-    CSVParser parser("../data/complex.csv", false);
+    CSVParser parser("../data/complex.csv", true);
     std::stringstream out;
 
     std::ifstream file("../data/complex_expected.csv");

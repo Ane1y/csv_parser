@@ -196,8 +196,8 @@ int CSVParser::evaluate_expression(std::string expression) {
         int left_operand = values.top();
         values.pop();
 
-        int result = evaluate_operation(left_operand, right_operand, op);
-        values.push(result);
+        int res = evaluate_operation(left_operand, right_operand, op);
+        values.push(res);
     }
 
     return values.top();
